@@ -28,8 +28,8 @@ from gui.rangeselect  import moveresizegame ,rangeselct_function
 from gui.usefulwidget import resizableframeless
 from gui.dialog_savedgame import browserdialog
 class QUnFrameWindow(resizableframeless):   
-    displayres =  pyqtSignal(str,str,str ,bool,list) 
-    displayraw1 =  pyqtSignal(list, str,str,bool,bool)  
+    displayres =  pyqtSignal(str,str,str ,bool,list,bool)
+    displayraw1 =  pyqtSignal(list, str,str,bool,bool)
     displaystatus=pyqtSignal(str,str,bool,bool) 
     showhideuisignal=pyqtSignal()
     hookfollowsignal=pyqtSignal(int,tuple)
@@ -70,7 +70,7 @@ class QUnFrameWindow(resizableframeless):
                 pass
             self.move(self.pos().x()+ other[0],self.pos().y()+ other[1])
         
-    def showres(self,name,color,res,onlyshowhist,iter_res_info):  
+    def showres(self,name,color,res,onlyshowhist,iter_res_info,is_append=False):
         try:
             if len(iter_res_info):
                 starting,klass=iter_res_info
@@ -89,17 +89,17 @@ class QUnFrameWindow(resizableframeless):
             if globalconfig['showfanyisource']:
                 #print(_type)
                 #self.showline((None,globalconfig['fanyi'][_type]['name']+'  '+res),globalconfig['fanyi'][_type]['color']  )
-                self.showline(clear,[None,name+'  '+_res],color ,1,False )
+                self.showline(clear,[None,name+'  '+_res],color ,1,is_append=is_append)
             else:
                 #self.showline((None,res),globalconfig['fanyi'][_type]['color']  )
-                self.showline(clear,[None,_res],color  ,1,False)
+                self.showline(clear,[None,_res],color  ,1,is_append=is_append)
             #print(globalconfig['fanyi'][_type]['name']+'  '+res+'\n')
             
             if len(iter_res_info) and starting:
                 self.saveiterclasspointer[klass]=self.translate_text.getcurrpointer()+len(res)
         except:
             print_exc() 
-    def showraw(self,hira,res,color ,onlyshowhist,clear): 
+    def showraw(self,hira,res,color ,onlyshowhist,clear):
         #print(res,onlyshowhist)
         gobject.baseobject.transhis.getnewsentencesignal.emit(res) 
         if onlyshowhist:
@@ -113,12 +113,12 @@ class QUnFrameWindow(resizableframeless):
         elif globalconfig['isshowrawtext']:
             self.showline(clear,[hira,_res],color,1)
         else:
-            self.showline(clear,None,None,1) 
+            self.showline(clear,None,None,1)
         
         gobject.baseobject.edittextui.getnewsentencesignal.emit(res)  
     def showstatus(self,res,color,clear,origin): 
         self.showline(clear,[None,res],color,1,origin)
-    def showline (self,clear,res,color ,type_=1,origin=True):   
+    def showline (self,clear,res,color ,type_=1,origin=True,is_append=False):
         if clear:
             self.translate_text.clear()
         self.translate_text.setnextfont(origin)
@@ -141,10 +141,10 @@ class QUnFrameWindow(resizableframeless):
             self.translate_text.simplecharformat(color)
         elif globalconfig['zitiyangshi'] ==3: 
             self.translate_text.simplecharformat(color)  
-        if type_==1: 
-            self.translate_text.append (res[1],[],origin) 
+        if type_==1:
+            self.translate_text.append (res[1],[],origin,no_newline=is_append)
         else:   
-            self.translate_text.append (res[1],res[0],origin)    
+            self.translate_text.append (res[1],res[0],origin,no_newline=is_append)
         if globalconfig['zitiyangshi'] ==3:
             self.translate_text.showyinyingtext(color  ) 
         if (globalconfig['usesearchword'] or globalconfig['usecopyword'] or globalconfig['show_fenci']  ) and res[0]:
@@ -414,7 +414,7 @@ class QUnFrameWindow(resizableframeless):
         self.buttons=[] 
         self.showbuttons=[] 
         self.saveiterclasspointer={}
-        self.addbuttons() 
+        self.addbuttons()
          
         
         self.translate_text =  Textbrowser(self)  
@@ -584,7 +584,7 @@ class QUnFrameWindow(resizableframeless):
     def resizeEvent(self, e):
         super().resizeEvent(e);
         wh=globalconfig['buttonsize'] *1.5
-        height = self.height() - wh 
+        height = self.height() - wh
          
         self.translate_text.resize(self.width()-5, height )
         for button in self.buttons[-2:]:
@@ -682,7 +682,7 @@ class QUnFrameWindow(resizableframeless):
             
             gobject.baseobject.textsource=None
         
-        saveallconfig() 
-        
+        saveallconfig()
+
         endsubprocs()
         os._exit(0) 

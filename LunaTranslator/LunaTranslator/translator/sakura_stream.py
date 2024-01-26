@@ -8,7 +8,6 @@ class TS(basetrans):
     def langmap(self):
         return {"zh": "zh-CN"}
     def __init__(self, typename) :
-        self.timeout = 30
         self.api_url = ""
         self.history = {
             "ja": [],
@@ -90,57 +89,16 @@ class TS(basetrans):
                 extra_query=extra_query,
                 stream=False,
             )
-            output = self.session.post(self.api_url + "/chat/completions", timeout=self.timeout, json=data).json()
-        except requests.Timeout as e:
-            raise ValueError(f"连接到Sakura API超时：{self.api_url}，当前最大连接时间为: {self.timeout}，请尝试修改参数。")
-            
+            output = self.session.post(self.api_url + "/chat/completions", json=data).json()
         except Exception as e:
-            print(e)
             raise ValueError(f"无法连接到Sakura API：{self.api_url}，请检查你的API链接是否正确填写，以及API后端是否成功启动。")
         return output
 
-    def send_request_stream(self, query, is_test=False, **kwargs):
-        from openai import OpenAI
-        client = OpenAI(api_key="114514", base_url=self.api_url)
-
-        extra_query = {
-            'do_sample': bool(self.config['do_sample']),
-            'num_beams': int(self.config['num_beams']),
-            'repetition_penalty': float(self.config['repetition_penalty']),
-        }
-        messages = self.make_messages(query, **kwargs)
-        try:
-            # OpenAI
-            for output in client.chat.completions.create(
-                model="sukinishiro",
-                messages=messages,
-                temperature=float(self.config['temperature']),
-                top_p=float(self.config['top_p']),
-                max_tokens= 1 if is_test else int(self.config['max_new_token']),
-                frequency_penalty=float(kwargs['frequency_penalty']) if "frequency_penalty" in kwargs.keys() else float(self.config['frequency_penalty']),
-                seed=-1,
-                extra_query=extra_query,
-                stream=True,
-            ):
-                text = output.choices[0].delta.content
-                yield text
-
-        except Exception as e:
-            print(e)
-            raise ValueError(f"无法连接到Sakura API：{self.api_url}，请检查你的API链接是否正确填写，以及API后端是否成功启动。")
-
     def translate(self, query):
         self.checkempty(['API接口地址'])
-        self.timeout = self.config['API超时(秒)']
         if self.api_url == "":
             self.get_client(self.config['API接口地址'])
         frequency_penalty = float(self.config['frequency_penalty'])
-
-        for output in self.send_request_stream(query, frequency_penalty=frequency_penalty):
-            yield output
-
-        return
-
         if not bool(self.config['利用上文信息翻译（通常会有一定的效果提升，但会导致变慢）']):
             output = self.send_request(query)
             completion_tokens = output["usage"]["completion_tokens"]

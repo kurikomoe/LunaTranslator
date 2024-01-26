@@ -135,6 +135,9 @@ class Textbrowser( ):
     def setText(self,text):
         self.textbrowser.setText(text)
         self.textbrowserback.setText(text)
+
+    def getText(self):
+        return self.textbrowser.toPlainText()
          
     def setFont(self,x): 
         f=QTextCharFormat()
@@ -187,14 +190,17 @@ class Textbrowser( ):
         else:
             self.align=False
      
-    def append(self,x ,tag,origin ): 
-        
+    def append(self,x ,tag,origin, no_newline=False):
+        print("no_newline: ", no_newline)
         if self.cleared:
             _space=''
             self.blockcount=0
             self.b1=0
         else:
-            _space='\n'
+            if no_newline:
+                _space=''
+            else:
+                _space='\n'
             self.b1=self.textbrowser.document().blockCount()
         self.cleared=False
         if self.needdouble:
@@ -223,6 +229,9 @@ class Textbrowser( ):
             self.blockcount=self.textbrowser.document().blockCount()
         if len(tag)>0:
             self.addtag(tag)
+
+        if no_newline:
+            return
 
         self.movep(0,self.savey)
     def showyinyingtext(self,color ):   

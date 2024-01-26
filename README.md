@@ -1,18 +1,37 @@
-# LunaTranslator 
-  
+# LunaTranslator (Streaming API POC)
+
+> Alert, this is only a POC verison of calling streaming openai like api in LunaTranslator
+
+Limitations:
+
+1. Only support sakura model (llama.cpp server or Sakura Server)
+2. Sakura Model cannot be used along with other translator source.
+
+
+
+Usage:
+
+1. Download stable release from original Lunatranslator
+2. copy essential dependencies files to `files` folder
+3. `pip install -r requirements.txt`
+4. `pip install openai`
+5. `python.exe -B LunaTranslator\LunaTranslator_main.py`
+
+
+
 <p align="left">
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/HIllya51/LunaTranslator"></a>
     <a href="https://github.com/HIllya51/LunaTranslator/releases"><img src="https://img.shields.io/github/v/release/HIllya51/LunaTranslator?color=ffa"></a>
     <a href="https://github.com/HIllya51/LunaTranslator/stargazers"><img src="https://img.shields.io/github/stars/HIllya51/LunaTranslator?color=ccf"></a>
     <a href="https://hillya51.github.io/download.html" target="_blank"><img src="https://img.shields.io/badge/download-blue"/></a>
 </p>
- 
+
 ## 简体中文 | [Русский язык](README_ru.md) | [English](README_en.md) | [Other Language Support](otherlang.md) 
 
 > **一款galgame翻译器**
 
 ## <a href="http://hillya51.github.io/" target="_blank">使用说明</a> 
- 
+
 
 ## 功能支持
 
@@ -40,7 +59,7 @@
 &emsp;&emsp;**预翻译** 支持读取人工翻译和聚合机器预翻译文件，支持翻译缓存
 
 &emsp;&emsp;**支持自定义翻译扩展** 支持使用python语言扩展其他我不知道的翻译接口
- 
+
 
 #### 语音合成
 
@@ -90,7 +109,7 @@
 </details>
 
 
- 
+
 ## 支持作者
 
 如果你感觉该软件对你有帮助，欢迎微信扫码赞助，谢谢，么么哒~

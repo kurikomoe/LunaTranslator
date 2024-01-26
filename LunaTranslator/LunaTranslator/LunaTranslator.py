@@ -42,7 +42,7 @@ class MAINUI() :
         super().__init__()
         self.lasttranslatorindex=0
         self.usefultranslators=0
-        self.app=app   
+        self.app=app
         self.translators={}
         self.cishus={}
         self.reader=None
@@ -168,7 +168,7 @@ class MAINUI() :
                         return 
             if text=='' or len(text)>100000:
                 if embedcallback:
-                    embedcallback('') 
+                    embedcallback('')
                 return 
  
         try:
@@ -188,7 +188,7 @@ class MAINUI() :
             
         if text=='' or (is_auto_run and (text==self.currenttext or len(text)>(max(globalconfig['maxoriginlength'],globalconfig['maxlength'])))):
             if embedcallback:
-                embedcallback('') 
+                embedcallback('')
             return 
         
         
@@ -272,21 +272,21 @@ class MAINUI() :
                     break
                 
     
-    def GetTranslationCallback(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,embedcallback):
+    def GetTranslationCallback(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,embedcallback,is_append=False):
         self.usefultranslators-=1
         if embedcallback is None and currentsignature!=self.currentsignature:return
 
         embedtrans=self.GetTranslationCallback_(onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res)
         
-        
+
         if embedtrans is None and self.usefultranslators==0:
             embedtrans=''
         if embedcallback and embedtrans is not None:
             embedcallback(embedtrans)
-        
+
     def GetTranslationCallback_(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res):
-        
-        
+
+
         if type(res)==str:
             if res.startswith('<msg_translator>'):
                 if currentsignature==self.currentsignature:
@@ -306,17 +306,17 @@ class MAINUI() :
             _showrawfunction()
         
         if currentsignature==self.currentsignature and globalconfig['showfanyi']:
-            self.translation_ui.displayres.emit(globalconfig['fanyi'][classname]['name'],globalconfig['fanyi'][classname]['color'],res,onlytrans)
-         
-        
+            self.translation_ui.displayres.emit(globalconfig['fanyi'][classname]['name'],globalconfig['fanyi'][classname]['color'],res,onlytrans,is_append)
+
+
         try:
             self.textsource.sqlqueueput((contentraw,classname,res))
         except:pass
 
-        if globalconfig['embedded']['as_fast_as_posible'] or classname==list(globalconfig['fanyi'])[globalconfig['embedded']['translator']]:    
-                
-            return (kanjitrans(zhconv.convert(res,'zh-tw')) if globalconfig['embedded']['trans_kanji'] else res) 
-    
+        if globalconfig['embedded']['as_fast_as_posible'] or classname==list(globalconfig['fanyi'])[globalconfig['embedded']['translator']]:
+
+            return (kanjitrans(zhconv.convert(res,'zh-tw')) if globalconfig['embedded']['trans_kanji'] else res)
+
     @threader
     def autoreadcheckname(self):
         try:
@@ -373,7 +373,7 @@ class MAINUI() :
     def selectprocess(self,selectedp): 
         self.textsource=None
         pids,pexe,hwnd=(  selectedp)
-        checkifnewgame(pexe,windows.GetWindowText(hwnd)) 
+        checkifnewgame(pexe,windows.GetWindowText(hwnd))
         if globalconfig['sourcestatus2']['texthook']['use']:
             self.textsource=texthook(pids,hwnd,pexe)  
         elif globalconfig['sourcestatus2']['fridahook']['use']:

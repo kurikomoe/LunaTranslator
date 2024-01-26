@@ -254,18 +254,33 @@ class basetrans(commonbase):
             try:
                 checktutukufunction=lambda:( (embedcallback is not None) or   self.queue.empty()) and self.using
                 if checktutukufunction(): 
+                    # def reinitandtrans():
+                    #     if self.needreinit:
+                    #         self.needreinit=False
+                    #         self.renewsesion()
+                    #         self._private_init()
+                    #     return self.maybecachetranslate(contentraw,contentsolved,hira,is_auto_run)
+                    # res=timeoutfunction(reinitandtrans,checktutukufunction=checktutukufunction )
+                    # if self.needzhconv:
+                    #     res=zhconv.convert(res,  'zh-tw' )
+
                     def reinitandtrans():
                         if self.needreinit:
                             self.needreinit=False
                             self.renewsesion()
                             self._private_init()
-                        return self.maybecachetranslate(contentraw,contentsolved,hira,is_auto_run)
-                    res=timeoutfunction(reinitandtrans,checktutukufunction=checktutukufunction ) 
-                    if self.needzhconv:
-                        res=zhconv.convert(res,  'zh-tw' )  
-                    
-                    callback(res,embedcallback) 
-                
+
+                        # Force a new line
+                        callback("", embedcallback, False)
+                        for res in self.translate(contentraw):
+                            if self.needzhconv:
+                                res = zhconv.convert(res,  'zh-tw')
+
+                            callback(res,embedcallback,True)
+                        return
+
+                    timeoutfunction(reinitandtrans,checktutukufunction=checktutukufunction )
+
             except Exception as e:
                 if self.using and globalconfig['showtranexception']:
                     if isinstance(e,ArgsEmptyExc):
@@ -279,6 +294,6 @@ class basetrans(commonbase):
                         self.needreinit=True
                     msg='<msg_translator>'+msg
             
-                    callback(msg,embedcallback) 
+                    callback(msg,embedcallback)
                     
         

@@ -28,7 +28,7 @@ from gui.rangeselect  import moveresizegame ,rangeselct_function
 from gui.usefulwidget import resizableframeless
 from gui.dialog_savedgame import browserdialog
 class QUnFrameWindow(resizableframeless):   
-    displayres =  pyqtSignal(str,str,str ,bool) 
+    displayres =  pyqtSignal(str,str,str,bool,bool)
     displayraw1 =  pyqtSignal(list, str,str,bool )  
     displaystatus=pyqtSignal(str,str,bool,bool) 
     showhideuisignal=pyqtSignal()
@@ -71,7 +71,7 @@ class QUnFrameWindow(resizableframeless):
             self.move(self.pos().x()+ other[0],self.pos().y()+ other[1])
             #self.move(self.pos().x()+self.rate *other[0],self.pos().y()+self.rate *other[1])
         
-    def showres(self,name,color,res,onlyshowhist):  
+    def showres(self,name,color,res,onlyshowhist,is_append=False):
         try:
             gobject.baseobject.transhis.getnewtranssignal.emit(name,res)
             if onlyshowhist:
@@ -84,10 +84,10 @@ class QUnFrameWindow(resizableframeless):
             if globalconfig['showfanyisource']:
                 #print(_type)
                 #self.showline((None,globalconfig['fanyi'][_type]['name']+'  '+res),globalconfig['fanyi'][_type]['color']  )
-                self.showline(clear,[None,name+'  '+_res],color ,1,False )
+                self.showline(clear,[None,name+'  '+_res],color ,1,is_append=is_append)
             else:
                 #self.showline((None,res),globalconfig['fanyi'][_type]['color']  )
-                self.showline(clear,[None,_res],color  ,1,False)
+                self.showline(clear,[None,_res],color  ,1,is_append=is_append)
             #print(globalconfig['fanyi'][_type]['name']+'  '+res+'\n')
             
             
@@ -112,7 +112,7 @@ class QUnFrameWindow(resizableframeless):
         gobject.baseobject.edittextui.getnewsentencesignal.emit(res)  
     def showstatus(self,res,color,clear,origin): 
         self.showline(clear,[None,res],color,1,origin)
-    def showline (self,clear,res,color ,type_=1,origin=True):   
+    def showline (self,clear,res,color ,type_=1,origin=True,is_append=False):
         if clear:
             self.translate_text.clear()
         self.translate_text.setnextfont(origin)
@@ -135,10 +135,10 @@ class QUnFrameWindow(resizableframeless):
             self.translate_text.simplecharformat(color)
         elif globalconfig['zitiyangshi'] ==3: 
             self.translate_text.simplecharformat(color)  
-        if type_==1: 
-            self.translate_text.append (res[1],[],origin) 
+        if type_==1:
+            self.translate_text.append (res[1],[],origin,no_newline=is_append)
         else:   
-            self.translate_text.append (res[1],res[0],origin)    
+            self.translate_text.append (res[1],res[0],origin,no_newline=is_append)
         if globalconfig['zitiyangshi'] ==3:
             self.translate_text.showyinyingtext(color  ) 
         if (globalconfig['usesearchword'] or globalconfig['usecopyword'] or globalconfig['show_fenci']  ) and res[0]:

@@ -3,21 +3,19 @@
 > Alert, this is only a POC verison of calling streaming openai like api in LunaTranslator
 
 Limitations:
+1. Only support Sakura model (llama.cpp server or Sakura Server)
+3. Sakura Model cannot be used along with other translator sources.
 
-1. Only support sakura model (llama.cpp server or Sakura Server)
-2. Sakura Model cannot be used along with other translator source.
+Release: see in [release](https://github.com/kurikomoe/LunaTranslator/releases)
 
-
-
-Usage:
-
+Usage (directly run from source code):
 1. Download stable release from original Lunatranslator
 2. copy essential dependencies files to `files` folder
 3. `pip install -r requirements.txt`
 4. `pip install openai`
 5. `python.exe -B LunaTranslator\LunaTranslator_main.py`
 
-
+-------------------------------
 
 <p align="left">
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/HIllya51/LunaTranslator"></a>

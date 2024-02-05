@@ -1,6 +1,7 @@
 from traceback import print_exc
 from translator.basetranslator import basetrans
 import requests
+from collections import OrderedDict
 # OpenAI
 from openai import OpenAI
 
@@ -11,25 +12,35 @@ class TS(basetrans):
         self.timeout = 30
         self.api_url = ""
         self.history = {
-            "ja": [],
-            "zh": []
+            "ja": OrderedDict(),
+            "zh": OrderedDict(),
         }
         self.session = requests.Session()
         super( ).__init__(typename)
-    def sliding_window(self, text_ja, text_zh):
+
+    def sliding_window(self, text_ja="", text_zh=""):
+        text_zh = text_zh if text_zh else ""
+        text_ja = text_ja if text_ja else ""
         if text_ja == "" or text_zh == "":
             return
-        self.history['ja'].append(text_ja)
-        self.history['zh'].append(text_zh)
+
+        self.history['ja'][text_ja] = text_ja
+
+        if text_ja not in self.history['zh']:
+            self.history['zh'][text_ja] = ""
+        self.history['zh'][text_ja] += text_zh
+
         if len(self.history['ja']) > int(self.config['附带上下文个数（必须打开利用上文翻译）']) + 1:
-            del self.history['ja'][0]
-            del self.history['zh'][0]
+            self.history['ja'].popitem(last=False)
+            self.history['zh'].popitem(last=False)
+
     def get_history(self, key):
         prompt = ""
-        for q in self.history[key]:
+        for text_ident, q in self.history[key].items():
             prompt += q + "\n"
         prompt = prompt.strip()
         return prompt
+
     def get_client(self, api_url):
         if api_url[-4:] == "/v1/":
             api_url = api_url[:-1]
@@ -107,7 +118,16 @@ class TS(basetrans):
             'num_beams': int(self.config['num_beams']),
             'repetition_penalty': float(self.config['repetition_penalty']),
         }
-        messages = self.make_messages(query, **kwargs)
+        print(self.config)
+        if bool(self.config['利用上文信息翻译（通常会有一定的效果提升，但会导致变慢）']):
+            history_prompt = self.get_history('zh')
+            print(f"Using History: {history_prompt}")
+            messages = self.make_messages(query, history_zh=history_prompt, **kwargs)
+        else:
+            messages = self.make_messages(query, **kwargs)
+
+        print(f"Translation request: {messages}")
+
         try:
             # OpenAI
             for output in client.chat.completions.create(
@@ -122,6 +142,8 @@ class TS(basetrans):
                 stream=True,
             ):
                 text = output.choices[0].delta.content
+
+                self.sliding_window(text_ja=query, text_zh=text)
                 yield text
 
         except Exception as e:
@@ -140,53 +162,53 @@ class TS(basetrans):
 
         return
 
-        if not bool(self.config['利用上文信息翻译（通常会有一定的效果提升，但会导致变慢）']):
-            output = self.send_request(query)
-            completion_tokens = output["usage"]["completion_tokens"]
-            output_text = output["choices"][0]["message"]["content"]
-
-            if bool(self.config['fix_degeneration']):
-                cnt = 0
-                while completion_tokens == int(self.config['max_new_token']):
-                    # detect degeneration, fixing
-                    frequency_penalty += 0.1
-                    output = self.send_request(query, frequency_penalty=frequency_penalty)
-                    completion_tokens = output["usage"]["completion_tokens"]
-                    output_text = output["choices"][0]["message"]["content"]
-                    cnt += 1
-                    if cnt == 2:
-                        break
-        else:
-            # 实验性功能，测试效果后决定是否加入。
-            # fallback = False
-            # if self.config['启用日文上下文模式']:
-            #     history_prompt = self.get_history('ja')
-            #     output = self.send_request(history_prompt + "\n" + query)
-            #     completion_tokens = output.usage.completion_tokens
-            #     output_text = output.choices[0].message.content
-
-            #     if len(output_text.split("\n")) == len(history_prompt.split("\n")) + 1:
-            #         output_text = output_text.split("\n")[-1]
-            #     else:
-            #         fallback = True
-            # 如果日文上下文模式失败，则fallback到中文上下文模式。
-            # if fallback or not self.config['启用日文上下文模式']:
-
-            history_prompt = self.get_history('zh')
-            output = self.send_request(query, history_zh=history_prompt)
-            completion_tokens = output["usage"]["completion_tokens"]
-            output_text = output["choices"][0]["message"]["content"]
-
-            if bool(self.config['fix_degeneration']):
-                cnt = 0
-                while completion_tokens == int(self.config['max_new_token']):
-                    frequency_penalty += 0.1
-                    output = self.send_request(query, history_zh=history_prompt, frequency_penalty=frequency_penalty)
-                    completion_tokens = output["usage"]["completion_tokens"]
-                    output_text = output["choices"][0]["message"]["content"]
-                    cnt += 1
-                    if cnt == 3:
-                        output_text = "Error：模型无法完整输出或退化无法解决，请调大设置中的max_new_token！！！原输出：" + output_text
-                        break
-            self.sliding_window(query, output_text)
-        return output_text
+        # if not bool(self.config['利用上文信息翻译（通常会有一定的效果提升，但会导致变慢）']):
+        #     output = self.send_request(query)
+        #     completion_tokens = output["usage"]["completion_tokens"]
+        #     output_text = output["choices"][0]["message"]["content"]
+        #
+        #     if bool(self.config['fix_degeneration']):
+        #         cnt = 0
+        #         while completion_tokens == int(self.config['max_new_token']):
+        #             # detect degeneration, fixing
+        #             frequency_penalty += 0.1
+        #             output = self.send_request(query, frequency_penalty=frequency_penalty)
+        #             completion_tokens = output["usage"]["completion_tokens"]
+        #             output_text = output["choices"][0]["message"]["content"]
+        #             cnt += 1
+        #             if cnt == 2:
+        #                 break
+        # else:
+        #     # 实验性功能，测试效果后决定是否加入。
+        #     # fallback = False
+        #     # if self.config['启用日文上下文模式']:
+        #     #     history_prompt = self.get_history('ja')
+        #     #     output = self.send_request(history_prompt + "\n" + query)
+        #     #     completion_tokens = output.usage.completion_tokens
+        #     #     output_text = output.choices[0].message.content
+        #
+        #     #     if len(output_text.split("\n")) == len(history_prompt.split("\n")) + 1:
+        #     #         output_text = output_text.split("\n")[-1]
+        #     #     else:
+        #     #         fallback = True
+        #     # 如果日文上下文模式失败，则fallback到中文上下文模式。
+        #     # if fallback or not self.config['启用日文上下文模式']:
+        #
+        #     history_prompt = self.get_history('zh')
+        #     output = self.send_request(query, history_zh=history_prompt)
+        #     completion_tokens = output["usage"]["completion_tokens"]
+        #     output_text = output["choices"][0]["message"]["content"]
+        #
+        #     if bool(self.config['fix_degeneration']):
+        #         cnt = 0
+        #         while completion_tokens == int(self.config['max_new_token']):
+        #             frequency_penalty += 0.1
+        #             output = self.send_request(query, history_zh=history_prompt, frequency_penalty=frequency_penalty)
+        #             completion_tokens = output["usage"]["completion_tokens"]
+        #             output_text = output["choices"][0]["message"]["content"]
+        #             cnt += 1
+        #             if cnt == 3:
+        #                 output_text = "Error：模型无法完整输出或退化无法解决，请调大设置中的max_new_token！！！原输出：" + output_text
+        #                 break
+        #     self.sliding_window(query, output_text)
+        # return output_text

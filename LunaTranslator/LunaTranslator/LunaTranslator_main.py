@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import  QApplication
 from PyQt5.QtGui import QFont
 import platform,os
 
+import openai
+
 if __name__ == "__main__" :
     dirname=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(dirname) 

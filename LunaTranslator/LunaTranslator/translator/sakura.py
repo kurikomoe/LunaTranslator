@@ -2,7 +2,7 @@ from traceback import print_exc
 from translator.basetranslator import basetrans
 import requests
 # OpenAI
-# from openai import OpenAI
+from openai import OpenAI
 
 class TS(basetrans):
     def langmap(self):
@@ -100,7 +100,6 @@ class TS(basetrans):
         return output
 
     def send_request_stream(self, query, is_test=False, **kwargs):
-        from openai import OpenAI
         client = OpenAI(api_key="114514", base_url=self.api_url)
 
         extra_query = {

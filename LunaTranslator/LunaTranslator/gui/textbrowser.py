@@ -191,7 +191,6 @@ class Textbrowser( ):
             self.align=False
      
     def append(self,x ,tag,origin, no_newline=False):
-        print("no_newline: ", no_newline)
         if self.cleared:
             _space=''
             self.blockcount=0

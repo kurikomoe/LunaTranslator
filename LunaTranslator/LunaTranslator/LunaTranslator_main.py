@@ -3,6 +3,8 @@ from PyQt5.QtCore import QCoreApplication ,Qt
 from PyQt5.QtWidgets import  QApplication
 import platform,os
 
+import openai
+
 if __name__ == "__main__" :
     # dirname=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     # os.chdir(dirname) 

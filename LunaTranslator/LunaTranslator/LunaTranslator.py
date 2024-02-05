@@ -2,7 +2,7 @@
 import time
 import re
 import os,threading ,ctypes
-from traceback import  print_exc   
+from traceback import  print_exc
 from myutils.config import globalconfig ,savehook_new_list,savehook_new_data,noundictconfig,transerrorfixdictconfig,setlanguage ,_TR,static_data
 import threading 
 from myutils.utils import minmaxmoveobservefunc ,kanjitrans,checkifnewgame,stringfyerror
@@ -276,7 +276,7 @@ class MAINUI() :
         self.usefultranslators-=1
         if embedcallback is None and currentsignature!=self.currentsignature:return
 
-        embedtrans=self.GetTranslationCallback_(onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res)
+        embedtrans=self.GetTranslationCallback_(onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,is_append)
         
 
         if embedtrans is None and self.usefultranslators==0:
@@ -284,9 +284,7 @@ class MAINUI() :
         if embedcallback and embedtrans is not None:
             embedcallback(embedtrans)
 
-    def GetTranslationCallback_(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res):
-
-
+    def GetTranslationCallback_(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,is_append=False):
         if type(res)==str:
             if res.startswith('<msg_translator>'):
                 if currentsignature==self.currentsignature:
@@ -314,7 +312,6 @@ class MAINUI() :
         except:pass
 
         if globalconfig['embedded']['as_fast_as_posible'] or classname==list(globalconfig['fanyi'])[globalconfig['embedded']['translator']]:
-
             return (kanjitrans(zhconv.convert(res,'zh-tw')) if globalconfig['embedded']['trans_kanji'] else res)
 
     @threader

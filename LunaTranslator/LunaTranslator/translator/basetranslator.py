@@ -270,12 +270,12 @@ class basetrans(commonbase):
                             self._private_init()
 
                         # Force a new line
-                        callback("", embedcallback, is_append=False)
+                        callback("", embedcallback, False, is_append=False)
                         for res in self.translate(contentraw):
                             # if self.needzhconv:
                             #     res = zhconv.convert(res,  'zh-tw')
                             if res:
-                                callback(res,embedcallback,is_append=True)
+                                callback(res,embedcallback,False, is_append=True)
                         return
 
                     timeoutfunction(reinitandtrans,checktutukufunction=checktutukufunction )

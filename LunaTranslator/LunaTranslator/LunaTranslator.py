@@ -273,7 +273,7 @@ class MAINUI() :
             self.iterresstatus.clear()
             for engine in keys:
                 if engine not in self.premtalready:
-                    self.translators[engine].gettask((partial(self.GetTranslationCallback,onlytrans,engine,self.currentsignature, optimization_params,_showrawfunction,_showrawfunction_sig,text),text,text_solved,skip,embedcallback,is_auto_run,hira)) 
+                    self.translators[engine].gettask((partial(self.GetTranslationCallback,onlytrans,engine,self.currentsignature, optimization_params,_showrawfunction,_showrawfunction_sig,text),text,text_solved,skip,embedcallback,is_auto_run,hira))
                 thistimeusednum+=1
                 self.lasttranslatorindex+=1
                 if(thistimeusednum>=usenum):
@@ -281,13 +281,12 @@ class MAINUI() :
                 
     
     def GetTranslationCallback(self,onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,embedcallback,is_iter_res,is_append=False):
-        self.usefultranslators-=1
         if embedcallback is None and currentsignature!=self.currentsignature:return
 
         embedtrans=self.GetTranslationCallback_(onlytrans,classname,currentsignature,optimization_params,_showrawfunction,_showrawfunction_sig,contentraw,res,is_iter_res,is_append)
         
 
-        if embedtrans is None and len(self.usefultranslators)==0:
+        if embedtrans is None:
             embedtrans=''
         if embedcallback and embedtrans is not None:
             embedcallback(embedtrans)

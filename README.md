@@ -1,3 +1,6 @@
+Official LunaTranslator has already merged the streaming patch, please use the official lunatranslator instead.
+LunaTranslator 原版已经合入流式翻译 pr，请使用原版仓库
+
 # LunaTranslator (Streaming API POC)
 
 > Alert, this is only a POC verison of calling streaming openai like api in LunaTranslator
